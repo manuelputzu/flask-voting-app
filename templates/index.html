@@ -1,0 +1,16 @@
+<html>
+<head>
+    <title>Vote for Your Favorite</title>
+</head>
+<body>
+    <h1>What do you think?</h1>
+    <form method="POST">
+        <button type="submit" name="vote" value="{{ option_a }}">{{ option_a }}</button>
+        <button type="submit" name="vote" value="{{ option_b }}">{{ option_b }}</button>
+    </form>
+
+    {% if vote %}
+        <p>Thanks for voting for: <strong>{{ vote }}</strong>!</p>
+    {% endif %}
+</body>
+</html>
