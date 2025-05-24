@@ -1,5 +1,15 @@
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
 .env
 *.db
+.venv/
+
+# macOS
+.DS_Store
