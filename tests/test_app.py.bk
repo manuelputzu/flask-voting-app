@@ -1,0 +1,24 @@
+import pytest # library
+from app import app, db #import flask-object, db-object
+
+@pytest.fixture # reusable code that can be shared
+def client():
+    with app.test_client() as client: # test client simulates requests
+        with app.app_context(): # enter context for db-operations
+            db.create_all() # creates all tables 
+        yield client # generate test client / use test client from now on
+        with app.app_context(): # enter context and drop all tables
+            db.drop_all()
+
+def test_home(client): # test function uses client 
+    """Test the home route"""
+    response = client.get('/') # simulate get request to index 
+    assert response.status_code == 200 # Assert status okay
+    assert b'Vote for Your Favorite' in response.data # response contains this text
+
+def test_vote(client):
+    """Test voting functionality"""
+    # Simulate a POST request to vote with vote = True
+    response = client.post('/', data={'vote': 'True'})
+    assert response.status_code == 200 # check if vote submission returns a successful response
+    assert b'Thanks for voting for: True' in response.data # Checks response includes the confirmation message

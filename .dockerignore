@@ -2,20 +2,14 @@
 .terraform/
 terraform.tfstate
 terraform.tfstate.backup
-terraform.tfvars
-
 
 # Python
 __pycache__/
 *.pyc
 *.pyo
 .env
-*.env
 *.db
 .venv/
 
 # macOS
 .DS_Store
-
-# Secrets
-secrets.*

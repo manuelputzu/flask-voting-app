@@ -27,6 +27,8 @@ option_b = "False"
 
 @app.route("/", methods=["GET", "POST"])
 def home():
+    print("DB_HOST:", DB_HOST)
+
     vote = None
     voter_id = request.cookies.get("voter_id")
 
