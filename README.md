@@ -25,12 +25,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-🔐 3. Create a .env File
-DB_HOST=your-rds-endpoint
-DB_NAME=votes
-DB_USER=your-db-username
-DB_PASS=your-db-password
-Note: This file is excluded from Git via .gitignore.
+🔐 3. Before running the app, copy .env.example to .env and fill in your real database credentials:
+cp .env.example .env
 
 🌐 Run the App Locally
 python app.py

@@ -19,6 +19,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Set up environment
+        run: cp .env.example .env  # Copies fake env vars to real .env
+
       - name: Install dependencies
         run: |
           python -m venv .venv
@@ -30,4 +33,3 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest
-
