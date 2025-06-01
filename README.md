@@ -52,16 +52,51 @@ Requires AWS CLI credentials to be set up beforehand.
 - Terraform state is ignored from Git; use an S3 backend for team collaboration
 - .DS_Store, .env, .venv, .terraform/, and other unwanted files are excluded
 
+☸️ Kubernetes Deployment (Minikube)
+You can now run the Flask Voting App on a local Kubernetes cluster!
+
+🧱 Requirements
+- [Docker](https://www.docker.com/)
+- [Minikube](https://minikube.sigs.k8s.io/docs/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+
+📦 Build and Deploy on Minikube
+# Start minikube
+minikube start
+
+# Use minikube's Docker engine
+eval $(minikube docker-env)
+
+# Build your image locally
+docker build -t flask-voting-app .
+
+# Create Kubernetes secrets
+kubectl create secret generic db-secret \
+  --from-literal=DB_USER=root \
+  --from-literal=DB_PASS=yourpassword
+
+# Apply Kubernetes manifests
+kubectl apply -f k8s/
+
+🔁 Access the App
+kubectl get pods
+kubectl port-forward pod/<your-flask-pod-name> 5000:5000
+Then visit: http://localhost:5000
+
 🧪 Future Improvements
 ✅ Add unit tests with pytest
 
-⏳ CI/CD pipeline (GitHub Actions)
+✅ CI/CD pipeline (GitHub Actions)
 
 ⏳ HTTPS support via NGINX on EC2
 
-⏳ Docker containerization
+✅ Docker containerization
 
 ⏳ Use of Terraform remote backend (S3 + DynamoDB)
+
+⏳ Future: Kubernetes on AWS (EKS) or K3s on EC2
+
+
 
 🧑‍🏫 Author
 Manuel Putzu
