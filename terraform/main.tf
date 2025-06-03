@@ -10,12 +10,14 @@ resource "aws_subnet" "main_1a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.10.0/24"
   availability_zone = "eu-central-1a"
+  map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "main_1b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.20.0/24"
   availability_zone = "eu-central-1b"
+  map_public_ip_on_launch = true
 }
 
 
@@ -102,16 +104,25 @@ resource "aws_instance" "web" {
   subnet_id     = aws_subnet.main_1a.id
   vpc_security_group_ids = [aws_security_group.allow_web_mysql.id]
   key_name      = var.key_name
+  associate_public_ip_address = true
 
   user_data = <<-EOF
               #!/bin/bash
               apt update -y
-              apt install -y python3-pip git
-              pip3 install flask mysql-connector-python flask_sqlalchemy
+              apt install -y docker.io git
+
+              exec > /var/log/user-data.log 2>&1
+              set -x
+              mkdir -p /home/ubuntu
+              chown ubuntu:ubuntu /home/ubuntu
+
+              systemctl start docker
+              systemctl enable docker
 
               cd /home/ubuntu
               git clone https://github.com/manuelputzu/flask-voting-app.git
 
+              # Create .env file with DB credentials
               cat <<EOT > /home/ubuntu/flask-voting-app/.env
               DB_HOST=${aws_db_instance.votes_db.endpoint}
               DB_NAME=votes_db
@@ -119,8 +130,9 @@ resource "aws_instance" "web" {
               DB_PASS=${var.db_password}
               EOT
 
-              cd /home/ubuntu/flask-voting-app
-              nohup python3 app.py > output.log 2>&1 &
+              # Run Docker container with .env file
+              docker pull mputzu/flask-voting-app:latest
+              /usr/bin/docker run -d --env-file /home/ubuntu/flask-voting-app/.env -p 5000:5000 mputzu/flask-voting-app:latest
               EOF
 
   tags = {
