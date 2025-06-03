@@ -5,17 +5,16 @@ terraform.tfstate.backup
 terraform.tfvars
 
 
-# Python
+# Environment and Secrets
 __pycache__/
 *.pyc
 *.pyo
 .env
+*.pem
 *.env
 *.db
 .venv/
+secrets.*
 
 # macOS
 .DS_Store
-
-# Secrets
-secrets.*

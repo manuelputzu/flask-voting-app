@@ -2,6 +2,7 @@ resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
+  tags = { Name = "main-vpc" }
 }
 
 # two subnets in different AZs minimum
@@ -51,7 +52,7 @@ resource "aws_security_group" "allow_web_mysql" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # SSH access - restrict in production
+    cidr_blocks = [var.my_ip] # SSH access - restrict in production
   }
 
   ingress {
@@ -87,7 +88,7 @@ resource "aws_db_instance" "votes_db" {
   vpc_security_group_ids  = [aws_security_group.allow_web_mysql.id]
   db_subnet_group_name    = aws_db_subnet_group.main.name
   skip_final_snapshot     = true
-  publicly_accessible     = true
+  publicly_accessible     = false
 }
 
 resource "aws_db_subnet_group" "main" {
@@ -104,12 +105,22 @@ resource "aws_instance" "web" {
 
   user_data = <<-EOF
               #!/bin/bash
-              sudo apt update -y
-              sudo apt install python3-pip -y
+              apt update -y
+              apt install -y python3-pip git
               pip3 install flask mysql-connector-python flask_sqlalchemy
+
+              cd /home/ubuntu
               git clone https://github.com/manuelputzu/flask-voting-app.git
-              cd voting-web-app-light
-              python3 app.py
+
+              cat <<EOT > /home/ubuntu/flask-voting-app/.env
+              DB_HOST=${aws_db_instance.votes_db.endpoint}
+              DB_NAME=votes_db
+              DB_USER=${var.db_username}
+              DB_PASS=${var.db_password}
+              EOT
+
+              cd /home/ubuntu/flask-voting-app
+              nohup python3 app.py > output.log 2>&1 &
               EOF
 
   tags = {

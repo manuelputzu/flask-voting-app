@@ -1,4 +1,4 @@
-name: Run Python Tests
+name: CI/CD Pipeline
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    name: Run Python Unit Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +21,7 @@ jobs:
           python-version: "3.12"
 
       - name: Set up environment
-        run: cp .env.example .env  # Copies fake env vars to real .env
+        run: cp .env.example .env
 
       - name: Install dependencies
         run: |
@@ -33,3 +34,40 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest
+
+  docker-build:
+    name: Build and Push Docker Image
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker image
+        run: |
+          docker build -t manuelputzu/flask-voting-app:latest .
+          docker push manuelputzu/flask-voting-app:latest
+
+  deploy:
+    name: Deploy to EC2
+    needs: docker-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Copy SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+
+      - name: SSH into EC2 and deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            docker pull manuelputzu/flask-voting-app:latest
+            docker stop voting-app || true
+            docker rm voting-app || true
+            docker run -d -p 8080:5000 --name voting-app manuelputzu/flask-voting-app:latest
+          EOF

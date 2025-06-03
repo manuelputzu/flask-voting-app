@@ -1,20 +1,13 @@
-variable "db_username" {
-  description = "The username for the database"
-  type        = string
+variable "ami_id" {}
+variable "key_name" {}
+variable "db_username" {}
+variable "db_password" {}
+variable "enable_backup_instance" {
+  description = "Toggle to enable backup EC2 instance"
+  type        = bool
+  default     = true
 }
-
-variable "db_password" {
-  description = "The password for the database"
-  type        = string
-  sensitive   = true
-}
-
-variable "ami_id" {
-  description = "Amazon Machine Image ID"
-  type        = string
-}
-
-variable "key_name" {
-  description = "EC2 Key Pair name"
+variable "my_ip" {
+  description = "Your IP address for SSH access"
   type        = string
 }

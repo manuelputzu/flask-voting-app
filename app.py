@@ -4,8 +4,11 @@ import random
 import os
 from dotenv import load_dotenv
 load_dotenv() # load environment variables from .env
+import logging
+from logging.handlers import RotatingFileHandler
 
-# Use environment variables for security (in real deployments)
+
+# environment variables 
 DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
@@ -19,10 +22,25 @@ def get_db_connection():
         host=DB_HOST,
         user=DB_USER,
         password=DB_PASS,
-        database=DB_NAME
+        database=DB_NAME,
+        connection_timeout=5
     )
 
 app = Flask(__name__)
+
+# Configure Logging
+if not os.path.exists('logs'):
+    os.mkdir('logs')
+
+file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=3)
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(message)s'
+))
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.INFO)
+app.logger.info("Voting App startup")
+
 
 # Voting options
 option_a = "True"
@@ -58,7 +76,7 @@ def home():
                 conn.commit()
 
         except mysql.connector.Error as err:
-            print(f"[ERROR] Database error: {err}")
+            app.logger.error(f"Database error: {err}")
         finally:
             if conn:
                 conn.close()

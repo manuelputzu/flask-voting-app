@@ -1,0 +1,7 @@
+# Rename to terraform.tfvars and fill in your own credentials (DO NOT COMMIT!)
+
+ami_id      = "ami-xxxxxxxxxxxxxxxxx"
+key_name    = "your-aws-key-pair-name"
+db_username = "your-db-username"
+db_password = "your-db-password"
+my_ip       = "your-ip-address"
