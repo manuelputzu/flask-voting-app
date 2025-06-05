@@ -1,1 +1,5 @@
 2025-06-04 10:13:09,134 [INFO] Voting App startup
+2025-06-05 17:12:03,458 [INFO] Voting App startup
+2025-06-05 17:12:03,458 [INFO] Connecting to DB at votes-db.c56qc8momm67.eu-central-1.rds.amazonaws.com:3306
+2025-06-05 17:14:15,226 [INFO] Voting App startup
+2025-06-05 17:14:15,226 [INFO] Connecting to DB at votes-db.c56qc8momm67.eu-central-1.rds.amazonaws.com:3306
