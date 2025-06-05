@@ -10,5 +10,18 @@ This Terraform config deploys:
 
 ```bash
 cd terraform
+cp terraform.tfvars.example terraform.tfvars  # Fill in your real values
 terraform init
 terraform apply
+
+## Outputs
+
+After `terraform apply`, you’ll see:
+
+- EC2 Public IP → Visit `http://<public-ip>:5000`
+- RDS endpoint → Used automatically in the app via `.env`
+
+You can re-run:
+
+```bash
+terraform output

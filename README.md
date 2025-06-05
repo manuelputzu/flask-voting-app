@@ -69,8 +69,8 @@ terraform init
 terraform apply
 ```
 
-# Set secrets for GitHub Actions in your repo
-# Then run manually or via `terraform apply` for local deployment.
+- Set secrets for GitHub Actions in your repo
+- Then run manually or via `terraform apply` for local deployment.
 
 This will provision:
 

@@ -3,13 +3,15 @@ import mysql.connector
 import random
 import os
 from dotenv import load_dotenv
-load_dotenv() # load environment variables from .env
 import logging
 from logging.handlers import RotatingFileHandler
 
+# Load environment variables from .env
+load_dotenv()
 
-# environment variables 
+# Environment variables 
 DB_HOST = os.getenv("DB_HOST")
+DB_PORT = int(os.getenv("DB_PORT", 3306))  # Ensure port is handled separately
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
@@ -20,6 +22,7 @@ if not all([DB_HOST, DB_NAME, DB_USER, DB_PASS]):
 def get_db_connection():
     return mysql.connector.connect(
         host=DB_HOST,
+        port=DB_PORT,
         user=DB_USER,
         password=DB_PASS,
         database=DB_NAME,
@@ -40,7 +43,8 @@ file_handler.setFormatter(logging.Formatter(
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info("Voting App startup")
-
+app.logger.info(f"Connecting to DB at {DB_HOST}:{DB_PORT}")
+print("Connecting to DB at:", DB_HOST, DB_PORT)
 
 # Voting options
 option_a = "True"
@@ -48,13 +52,11 @@ option_b = "False"
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    print("DB_HOST:", DB_HOST)
-
     vote = None
     voter_id = request.cookies.get("voter_id")
 
     if not voter_id:
-        voter_id = str(random.getrandbits(64))
+        voter_id = "DEBUG_" + str(random.getrandbits(64))  # Ensure new ID is generated
 
     if request.method == "POST":
         vote = request.form.get("vote")
@@ -74,6 +76,9 @@ def home():
                     (voter_id, vote)
                 )
                 conn.commit()
+                app.logger.info(f"Inserted vote: {voter_id} → {vote}")
+            else:
+                app.logger.info(f"Vote skipped: {voter_id} already voted")
 
         except mysql.connector.Error as err:
             app.logger.error(f"Database error: {err}")
@@ -88,6 +93,12 @@ def home():
         vote=vote
     ))
     response.set_cookie("voter_id", voter_id)
+    return response
+
+@app.route("/reset")
+def reset_cookie():
+    response = make_response("Cookie reset.")
+    response.set_cookie("voter_id", "", expires=0)
     return response
 
 if __name__ == "__main__":

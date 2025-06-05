@@ -1,3 +1,4 @@
+# terraform.tfvars.example
 # Rename to terraform.tfvars and fill in your own credentials (DO NOT COMMIT!)
 
 ami_id      = "ami-xxxxxxxxxxxxxxxxx"
